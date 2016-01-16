@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <memory>
 
 namespace AjucLispParser {
 
@@ -71,14 +72,14 @@ const std::string Atom::name() const {
 
 List::List() {
 }
-List::List(const std::vector<const Expression* > elements) {
+List::List( std::vector< std::shared_ptr< Expression> > elements) {
 	this->elements = elements;
 }
 List::~List() {
 }
 const std::string List::toString() const {
 	std::string result("( ");
-	for (int i=0; i<elements.size(); i++) {
+	for (unsigned int i=0; i<elements.size(); i++) {
 		if (i>0) {
 			result += ", ";
 		}
@@ -87,10 +88,10 @@ const std::string List::toString() const {
 	result += " )";
 	return result;
 }
-const Expression* List::first() const {
+std::shared_ptr< Expression> List::first() const {
 	return elements[0];
 }
-const Expression* List::item(const int index) const {
+std::shared_ptr< Expression> List::item(const int index) const {
 	return elements[index];
 }
 const int List::size() const {
@@ -150,12 +151,12 @@ bool dotIn(const std::string& buffer) {
 bool dot(char c) {
 	return c == '.';
 }
-const Expression* parse(std::istringstream& input) {
+std::shared_ptr< Expression> parse(std::istringstream& input) {
 	int line_no = 1;
 	return parse(input, line_no, true);
 }
 
-const Expression* parse(std::istringstream& input, int& line_no, bool topLevel) {
+std::shared_ptr< Expression> parse(std::istringstream& input, int& line_no, bool topLevel) {
 	std::string buffer("");
 	char c;
 	
@@ -169,13 +170,13 @@ const Expression* parse(std::istringstream& input, int& line_no, bool topLevel) 
 				;//nothing to do
 			} else {
 				if (digit(buffer[0])) {
-					return new Float(buffer);
+					return std::make_shared<Float>(buffer);
 				} else if (doubleQuote(buffer[0])) {
 					buffer += c;
 				} else if (colon(buffer[0])) {
-					return new Atom(buffer.substr(1));
+					return std::make_shared<Atom>(buffer.substr(1));
 				} else if (alphanumeric(buffer[0])) {
-					return new Identifier(buffer);
+					return std::make_shared<Identifier>(buffer);
 				//} else {
 				//	return new Identifier(buffer);
 				}
@@ -208,21 +209,20 @@ const Expression* parse(std::istringstream& input, int& line_no, bool topLevel) 
 			} else {
 				if (doubleQuote(buffer[0])) {
 					buffer += c;
-					return new String(buffer);
+					return std::make_shared<String>(buffer);
 				} else {
 					SYNTAX_ERROR(line_no, "Double-quote found in the middle of token " << buffer + c );
 				}
 			}
-		} else if (parenthenesis(c)) { //TODO - uwaga - tu cale zamotanie jest
+		} else if (parenthenesis(c)) { //BEWARE - THE TRICKY PART //TODO refactor to smaller functions
 			if (buffer.empty()) {
 				if (openParenthenesis(c)) {
-					//zaczyna sie lista
-					std::vector<const Expression*> list;
+					std::vector< std::shared_ptr<Expression>> list;
 					char c2;
 					input.get(c2);
 					while (!closeParenthenesis(c2)) {
 						input.unget();
-						const Expression* tmpExp = parse(input, line_no, false);
+						std::shared_ptr<Expression> tmpExp = parse(input, line_no, false);
 						if (tmpExp) {
 						    list.push_back(tmpExp);
 						} else {
@@ -233,7 +233,7 @@ const Expression* parse(std::istringstream& input, int& line_no, bool topLevel) 
 					if (!parenMatches(c, c2)) {
 						SYNTAX_ERROR(line_no, "Parenthenesis " << c << " is closed by not matching paren : " << c2);
 					}
-					return new List(list);
+					return std::make_shared<List>(list);
 				} else {//closeParenthenesis(c)
 					if (topLevel) {
 					    SYNTAX_ERROR(line_no, "Found unmatched close parenthenesis " << c);
@@ -242,21 +242,21 @@ const Expression* parse(std::istringstream& input, int& line_no, bool topLevel) 
 					}
 				}
 			} else {
-				//koniec tokena jakiegos
-				//cofnijmy c do strumienia, i zwrocmy expression
-				//albo to byl nawias wewnatrz stringa i po prostu go dodajemy
-				
+				//end of some token
+				//return c back to the ctream and return expression as a result
+				//or possibly it was ending paren inside a string and we add it simply
+                          
 				if (digit(buffer[0])) {
 					input.unget();
-					return new Float(buffer);
+					return std::make_shared<Float>(buffer);
 				} else if (doubleQuote(buffer[0])) {
-					buffer += c; //nie robimy unget, bo to nawias wewnatrz stringa
-				} else if (colon(buffer[0])) {
+					buffer += c; //no unget, cause it's inside a string literal
+                                } else if (colon(buffer[0])) {
 					input.unget();
-					return new Atom(buffer);
+					return std::make_shared<Atom>(buffer);
 				} else if (alphanumeric(buffer[0])) {
 					input.unget();
-					return new Identifier(buffer);
+					return std::make_shared<Identifier>(buffer);
 				}  else {
 					SYNTAX_ERROR(line_no, "Situation impossible : buffer == " << buffer);
 				}

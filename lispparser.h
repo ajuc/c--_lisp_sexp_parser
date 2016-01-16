@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
+#include <memory>
 
 #define SYNTAX_ERROR(line_no, x) { std::cerr << (line_no) << ": " <<  x << std::endl; exit(-1); }
 
@@ -67,24 +68,23 @@ class Atom : public Expression {
 	std::string _name;
 };
 
-
 class List : public Expression {
     public:
 	List();
-	List(const std::vector<const Expression* > elements);
+	List(std::vector< std::shared_ptr< Expression> > elements);
 	~List();
 	const std::string toString() const;
-	const Expression* first() const;
-	const Expression* item(const int index) const;
+	std::shared_ptr<Expression> first() const;
+	std::shared_ptr<Expression> item(const int index) const;
 	const int size() const;
 	bool empty() const;
     private:
-	std::vector<const Expression*> elements;
+	std::vector< std::shared_ptr< Expression> > elements;
 };
 
 /** Parses input into expression. */
-const Expression* parse(std::istringstream& input, int& line_no, bool topLevel);
-const Expression* parse(std::istringstream& input);
+std::shared_ptr<Expression> parse(std::istringstream& input, int& line_no, bool topLevel);
+std::shared_ptr<Expression> parse(std::istringstream& input);
 
 };
 
