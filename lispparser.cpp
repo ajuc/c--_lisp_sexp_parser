@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <iostream>
 #include <memory>
 
 namespace AjucLispParser {
@@ -151,12 +152,12 @@ bool dotIn(const std::string& buffer) {
 bool dot(char c) {
 	return c == '.';
 }
-std::shared_ptr< Expression> parse(std::istringstream& input) {
+std::shared_ptr< Expression> parse(std::istream& input) {
 	int line_no = 1;
 	return parse(input, line_no, true);
 }
 
-std::shared_ptr< Expression> parse(std::istringstream& input, int& line_no, bool topLevel) {
+std::shared_ptr< Expression> parse(std::istream& input, int& line_no, bool topLevel) {
 	std::string buffer("");
 	char c;
 	

@@ -83,8 +83,8 @@ class List : public Expression {
 };
 
 /** Parses input into expression. */
-std::shared_ptr<Expression> parse(std::istringstream& input, int& line_no, bool topLevel);
-std::shared_ptr<Expression> parse(std::istringstream& input);
+std::shared_ptr<Expression> parse(std::istream& input, int& line_no, bool topLevel);
+std::shared_ptr<Expression> parse(std::istream& input);
 
 };
 
