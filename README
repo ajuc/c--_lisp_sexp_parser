@@ -41,15 +41,14 @@ But this won't parse:
 ( [1 2 3) {4 5 6} ]
 
 
-Parse returns const pointer to Expression, possibly containing other expressions, each as const pointer. Expressions are cons - once retained from parse, they can only be read, or deleted
-(deleting pointer is caller responsibility).
+Parse returns shared_ptr to Expression, possibly containing other expressions, each through shared_ptr. There can be no cycles inside (this arises naturally from the way parser works).
 
 If input stream contains More than one top-level form, the first invocation of parse will return the first form, and the second invocation of parse on the same stream will return second form, and so on.
 
-Hope it will be useful for somebody. If so - let me know.
+Hope it will be useful for somebody. If so - would be nice if you let me know :)
 
 
-Copyright 2010 Sebastian Pidek. All rights reserved.
+Copyright 2010-2016 Sebastian Pidek. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
 permitted provided that the following conditions are met:
