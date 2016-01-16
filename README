@@ -1,17 +1,17 @@
-This library is intended as simple replacement for xml parsing libraries for those, that prefer lisp sexp syntax over xml.
+This library is intended as simple replacement for XML parsing libraries for those, that prefer lisp sexp syntax over XML.
 
 To use it you only have to include these 2 files in your project: lispparser.h and lispparser.cpp, and to add #include "lispparser.h" in your code.
 Code only depends on STL, so no external libraries are needed.
 
 Example of usage is in main.cpp.
 
-Library is contained in one namespace AjucLispParser. The one funciton that is intended for end-user is
+Library is contained in one namespace AjucLispParser. The one function that is intended for end-user is
 
 const Expression* parse(istringstream& input);
 
 This function tries to read from input stream input the first form and parse it to Expression.
 
-Expression is abstract base class - its subclasses are Float, String, Atom, Identifier and List. List is a Expression that can contain other Expressions - it can be arbitraly deep nested.
+Expression is abstract base class - its sub-classes are Float, String, Atom, Identifier and List. List is a Expression that can contain other Expressions - it can be arbitrarily deep nested.
 
 Examples of inputs and resulting Expression trees:
 
@@ -28,7 +28,7 @@ Every Expression subclass has method toString() which returns string representat
 
 Spaces, Tabs, Line breaks (Enters) and commas (,) are considered whitespace, so (1 2 3) is equivalent to (1 2,,,, 3,,).
 
-There are 3 types of parentheneses: (), [], {}. They can be used interchangeably, but if kinds of parentheneses doesn't match, parse will report error.
+There are 3 types of parentheses: (), [], {}. They can be used interchangeably, but if kinds of parentheses doesn't match, parse will report error.
 
 So these forms are equivalent:
 [ [1 2 3] [4 5 6] ]
@@ -41,10 +41,10 @@ But this won't parse:
 ( [1 2 3) {4 5 6} ]
 
 
-Parse returns const pointer to Expression, possibly contaiing other expressions, each as const pointer. Expressions are cons - once retained from parse, they can only be read, or deleted
-(deleting pointer is callee responsibility).
+Parse returns const pointer to Expression, possibly containing other expressions, each as const pointer. Expressions are cons - once retained from parse, they can only be read, or deleted
+(deleting pointer is caller responsibility).
 
-If input stream contains mroe than one top-level form, the first invocation of parse will return the first form, and the second invocation of parse on the same stream will return second form, and so on.
+If input stream contains More than one top-level form, the first invocation of parse will return the first form, and the second invocation of parse on the same stream will return second form, and so on.
 
 Hope it will be useful for somebody. If so - let me know.
 
