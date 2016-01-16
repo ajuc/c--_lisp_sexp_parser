@@ -1,11 +1,11 @@
-build: testparse.cpp lispparser.cpp lispparser.h
-		g++ -std=c++11 -Wall main.cpp lispparser.cpp -o testparse
+build: test_parse.cpp lispparser.cpp lispparser.h
+		g++ -std=c++11 -Wall test_parse.cpp lispparser.cpp -o test_parse
 
 clean:
-		rm -f testparse
+		rm -f test_parse
 
 rebuild: clean build
 
-test: testparse
+test: rebuild
 		./run_tests.sh
 
